@@ -1,87 +1,77 @@
-version: "3.9"
+networks:
+  labnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
 
 services:
   jumpbox:
     build: .
     container_name: jumpbox
     hostname: jumpbox
+    privileged: true
     cpus: 1.0
     mem_limit: 512m
-    volumes:
-      - jumpbox_data:/data
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.10
     ports:
       - "2222:22"
-    networks:
-      - labnet
+    volumes:
+      - jumpbox_data:/data
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
   server:
     build: .
     container_name: server
     hostname: server
+    privileged: true
     cpus: 1.0
     mem_limit: 2g
-    volumes:
-      - server_data:/data
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.20
     ports:
       - "2223:22"
-    networks:
-      - labnet
+    volumes:
+      - server_data:/data
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
   node-0:
     build: .
     container_name: node-0
     hostname: node-0
+    privileged: true
     cpus: 1.0
     mem_limit: 2g
-    volumes:
-      - node0_data:/data
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.30
     ports:
       - "2224:22"
-    networks:
-      - labnet
+    volumes:
+      - node0_data:/data
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
   node-1:
     build: .
     container_name: node-1
     hostname: node-1
+    privileged: true
     cpus: 1.0
     mem_limit: 2g
-    volumes:
-      - node1_data:/data
+    networks:
+      labnet:
+        ipv4_address: 172.30.0.40
     ports:
       - "2225:22"
-    networks:
-      - labnet
-
-networks:
-  labnet:
-    driver: bridge
+    volumes:
+      - node1_data:/data
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
 volumes:
   jumpbox_data:
-    driver: local
-    driver_opts:
-      o: size=10G
-      type: tmpfs
-      device: tmpfs
-
   server_data:
-    driver: local
-    driver_opts:
-      o: size=20G
-      type: tmpfs
-      device: tmpfs
-
   node0_data:
-    driver: local
-    driver_opts:
-      o: size=20G
-      type: tmpfs
-      device: tmpfs
-
   node1_data:
-    driver: local
-    driver_opts:
-      o: size=20G
-      type: tmpfs
-      device: tmpfs
